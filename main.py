@@ -1,8 +1,9 @@
-import os
+import os, io
 from enum import Enum
 
 import openpyxl
 from docxtpl import DocxTemplate
+from docx2pdf import convert
 
 
 class CertType(Enum):
@@ -28,6 +29,10 @@ def make_certificate(tpl_data: dict, cert_type: CertType, path: str) -> None:
     file_name = f"{tpl_data["surname"]} {tpl_data["name"]} {tpl_data["patronymic"]}"
     certificate.render(tpl_data)
     certificate.save(f"{path}/{file_name}.docx")
+
+    docx_file = f"{path}/{file_name}.docx"
+    pdf_file = f"{path}/{file_name}.pdf"
+    convert(docx_file, pdf_file)
 
 
 WORKING_DIR = get_dir("сертификаты")
