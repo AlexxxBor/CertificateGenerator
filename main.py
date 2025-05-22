@@ -33,8 +33,8 @@ def make_certificate(tpl_data: dict, cert_type: CertType, path: str) -> None:
 WORKING_DIR = get_dir("сертификаты")
 CERT_DATA_SHEET = "cert_data"
 
+course_dir = WORKING_DIR
 tpl_data_keys = ("surname", "name", "patronymic", "course", "mod", "hour", "cert", "number")
-# tpl_data_set = []
 
 wb = openpyxl.load_workbook(filename="data/IT-куб.xlsx")
 
@@ -53,6 +53,11 @@ for sheet in wb.sheetnames:
             # TODO: обработка пустых ячеек
             tpl_data_values = tuple(cell.value for cell in row)
             context = {tpl_data_keys[i]: value for i, value in enumerate(tpl_data_values)}
+
+            module = context.pop('mod')
+            if module != "без модуля":
+                context['course'] = f"{context['course']} ({module})"
+
             make_certificate(context, CertType(context["cert"]), course_dir)
 
     except Exception as e:
