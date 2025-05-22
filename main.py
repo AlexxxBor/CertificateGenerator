@@ -25,7 +25,7 @@ def get_dir(directory: str):
 
 def make_certificate(tpl_data: dict, cert_type: CertType, path: str) -> None:
     certificate = get_template(cert_type)
-    file_name = f"{context["surname"]} {context["name"]} {context["patronymic"]}"
+    file_name = f"{tpl_data["surname"]} {tpl_data["name"]} {tpl_data["patronymic"]}"
     certificate.render(tpl_data)
     certificate.save(f"{path}/{file_name}.docx")
 
@@ -38,27 +38,37 @@ tpl_data_keys = ("surname", "name", "patronymic", "course", "mod", "hour", "cert
 
 wb = openpyxl.load_workbook(filename="data/IT-куб.xlsx")
 
-for sheet in wb.sheetnames:
-    if sheet == CERT_DATA_SHEET:
-        continue
 
-    try:
-        course_dir = get_dir(f"{WORKING_DIR}/{sheet}")
-    except OSError as e:
-        print(f"Не могу создать папку в {WORKING_DIR} для {sheet}. Возникла ошибка: {e}")
-        break
+def main():
+    for sheet in wb.sheetnames:
+        if sheet == CERT_DATA_SHEET:
+            continue
 
-    try:
-        for row in wb[sheet].iter_rows(min_row=2):
-            # TODO: обработка пустых ячеек
-            tpl_data_values = tuple(cell.value for cell in row)
-            context = {tpl_data_keys[i]: value for i, value in enumerate(tpl_data_values)}
+        try:
+            course_dir = get_dir(f"{WORKING_DIR}/{sheet}")
+        except OSError as e:
+            print(f"Не могу создать папку в папке '{WORKING_DIR}' для листа '{sheet}'.")
+            print(f"Возникла ошибка: {e}")
+            break
 
-            module = context.pop('mod')
-            if module != "без модуля":
-                context['course'] = f"{context['course']} ({module})"
+        try:
+            for row in wb[sheet].iter_rows(min_row=2):
+                tpl_data_values = tuple(cell.value for cell in row)
 
-            make_certificate(context, CertType(context["cert"]), course_dir)
+                if None in tpl_data_values:
+                    break
 
-    except Exception as e:
-        print(f"При формировании набора данных возникла ошибка:\n{e}")
+                context = {tpl_data_keys[i]: value for i, value in enumerate(tpl_data_values)}
+
+                edu_module = context.pop('mod')
+                if edu_module != "без модуля":
+                    context['course'] = f"{context['course']} ({edu_module})"
+
+                make_certificate(context, CertType(context["cert"]), course_dir)
+
+        except Exception as e:
+            print(f"При формировании набора данных возникла ошибка:\n{e}")
+
+
+if __name__ == "__main__":
+    main()
