@@ -10,11 +10,14 @@ from art import tprint
 class CertType(Enum):
     MAIN_CERT = "сертификат"
     DIST_CERT = "сертификат с отличием"
+    SUMMER_CERT = "летние смены"
 
 
 def get_template(cert_type: CertType) -> DocxTemplate:
     if cert_type == CertType.DIST_CERT:
         return DocxTemplate("templates/tpl_with_distinction.docx")
+    elif cert_type == CertType.SUMMER_CERT:
+        return DocxTemplate("templates/tpl_certificate_it_summer.docx")
     return DocxTemplate("templates/tpl_certificate.docx")
 
 
@@ -62,6 +65,19 @@ def print_info(count: int):
 
 
 def main():
+    rows = 3
+    row = 0
+    for num, sheet in enumerate(wb.sheetnames, 1):
+        row += 1
+        print(f"{num}) {sheet};", end='\t')
+        if row % rows == 0:
+            row = 0
+            print()
+
+    print("Какие листы использовать?")
+    use_sheets_numbers = int(input())
+    return
+
     tprint('starting...')
     count = 0
 
