@@ -29,6 +29,15 @@ def get_dir(directory: str):
     return directory
 
 
+def get_files(directory):
+    try:
+        files = os.listdir(directory)
+        files = [f for f in files if os.path.isfile(os.path.join(directory, f))]
+        return files
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
 def make_certificate(tpl_data: dict, cert_type: CertType, path: str) -> None:
     docx_dir = get_dir(f"{path}/docx")
     file_name = f"{tpl_data["surname"]} {tpl_data["name"]} {tpl_data["patronymic"]}"
@@ -71,6 +80,9 @@ wb = openpyxl.load_workbook(filename="data/IT-куб.xlsx")
 
 def main():
     print("Для завершения работы нажмите Esc", end='\n\n')
+    for number, file in enumerate(get_files("data/"), 1):
+        print(number, file)
+    return
 
     print(end="▒ ")
     for num, sheet in enumerate(wb.sheetnames, 1):
