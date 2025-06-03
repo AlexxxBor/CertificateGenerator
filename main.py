@@ -70,12 +70,15 @@ wb = openpyxl.load_workbook(filename="data/IT-куб.xlsx")
 
 
 def main():
+    print("Для завершения работы нажмите Esc", end='\n\n')
+
+    print(end="▒ ")
     for num, sheet in enumerate(wb.sheetnames, 1):
         if sheet == CERT_DATA_SHEET:
             continue
-        print(f'[{num}]{sheet}; ', end='')
+        print(f'{num}.{sheet}', end=' ▒ ')
 
-    sheets_range = pages_range(input("\nКакие листы использовать? "))
+    sheets_range = pages_range(input("\n\nКакие листы использовать? "))
     work_sheets = get_used_sheets(sheets_range, wb)
 
     tprint('starting...')
@@ -119,4 +122,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt as e:
+        print(e)
