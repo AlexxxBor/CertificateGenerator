@@ -1,5 +1,8 @@
 import os
 import openpyxl
+import warnings
+
+warnings.filterwarnings("ignore")
 
 from enum import Enum
 from docxtpl import DocxTemplate
@@ -71,19 +74,19 @@ def get_used_sheets(sheets_range: list[int], wb: Workbook):
     return using_sheets_names
 
 
-WORKING_DIR = get_dir("сертификаты")
-CERT_DATA_SHEET = "cert_data"
-
-tpl_data_keys = ("surname", "name", "patronymic", "course", "mod", "hour", "cert", "number")
-wb = openpyxl.load_workbook(filename="data/IT-куб.xlsx")
-
-
 def main():
-    print("Для завершения работы нажмите Esc", end='\n\n')
-    for number, file in enumerate(get_files("data/"), 1):
-        print(number, file)
-    return
+    excel_files = get_files(EXCEL_DIR)
 
+    for number, file in enumerate(excel_files, 1):
+        print(f"▒ {number}.{file}")
+
+    file_index = int(input("   Открыть файл: ")) - 1
+    while file_index > len(excel_files) - 1 or file_index < 0:
+        file_index = int(input("Неверный номер файла. повторите ввод: ")) - 1
+
+    wb = openpyxl.load_workbook(filename=f"{EXCEL_DIR}/{excel_files[file_index]}")
+
+    print("▼ доступные листы ▼")
     print(end="▒ ")
     for num, sheet in enumerate(wb.sheetnames, 1):
         if sheet == CERT_DATA_SHEET:
@@ -91,6 +94,7 @@ def main():
         print(f'{num}.{sheet}', end=' ▒ ')
 
     sheets_range = pages_range(input("\n\nКакие листы использовать? "))
+    # TODO: сделать проверку на правильность введенных номеров листов
     work_sheets = get_used_sheets(sheets_range, wb)
 
     tprint('starting...')
@@ -134,6 +138,12 @@ def main():
 
 
 if __name__ == "__main__":
+    WORKING_DIR = get_dir("сертификаты")
+    CERT_DATA_SHEET = "cert_data"
+    EXCEL_DIR = "data"
+
+    tpl_data_keys = ("surname", "name", "patronymic", "course", "mod", "hour", "cert", "number")
+
     try:
         main()
     except KeyboardInterrupt as e:
