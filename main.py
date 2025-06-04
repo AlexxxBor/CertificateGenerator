@@ -1,9 +1,6 @@
 import os
 import openpyxl
 import warnings
-
-warnings.filterwarnings("ignore")
-
 from enum import Enum
 from docxtpl import DocxTemplate
 from docx2pdf import convert
@@ -112,10 +109,10 @@ def main():
             break
 
         try:
-            for row in wb[sheet].iter_rows(min_row=2):
+            for row in wb[sheet].iter_rows(min_row=2, max_col=8):
                 tpl_data_values = tuple(cell.value for cell in row)
 
-                if None in tpl_data_values:
+                if not all(tpl_data_values):
                     break
 
                 context = {tpl_data_keys[i]: value for i, value in enumerate(tpl_data_values)}
@@ -138,6 +135,8 @@ def main():
 
 
 if __name__ == "__main__":
+    warnings.filterwarnings("ignore")
+
     WORKING_DIR = get_dir("сертификаты")
     CERT_DATA_SHEET = "cert_data"
     EXCEL_DIR = "data"
